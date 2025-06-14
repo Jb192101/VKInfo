@@ -1,6 +1,7 @@
 package org.jedi_bachelor.vkinfo;
 
 import static org.jedi_bachelor.vkinfo.utils.NetworkUtils.generateURL;
+import static org.jedi_bachelor.vkinfo.utils.NetworkUtils.getResponseFromURL;
 
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import org.jedi_bachelor.vkinfo.utils.NetworkUtils;
 
+import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,8 +44,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Тест
+                //URL url = generateURL(searchField.getText().toString());
+                //result.setText(url.toString());
+
+                // Тест 2
                 URL url = generateURL(searchField.getText().toString());
-                result.setText(url.toString());
+                String response = null;
+                try {
+                    response = getResponseFromURL(url);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                result.setText(response);
             }
         };
 

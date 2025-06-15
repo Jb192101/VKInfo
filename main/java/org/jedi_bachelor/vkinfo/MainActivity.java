@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -27,8 +28,25 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchField;
     private Button searchButton;
     private TextView result;
+    private TextView errorMessage;
+    private ProgressBar progressBar;
+
+    private void showResultTextView() {
+        result.setVisibility(View.VISIBLE);
+        errorMessage.setVisibility(View.INVISIBLE);
+    }
+
+    private void showErrorMessage() {
+        result.setVisibility(View.INVISIBLE);
+        errorMessage.setVisibility(View.VISIBLE);
+    }
 
     class VKQueryTask extends AsyncTask<URL, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected String doInBackground(URL... urls) {
             String response = null;
@@ -44,19 +62,25 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String response) {
             // Распарсиваем JSON
-            String resultName;
+            String resultName = null;
 
-            try {
-                JSONObject jsonResponse = new JSONObject(response);
-                JSONArray jsonArray = jsonResponse.getJSONArray("response"); // response - ключ, по которому находится этот массив
+            if(response == null || response.equals("")) {
+                showErrorMessage();
+            } else {
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    JSONArray jsonArray = jsonResponse.getJSONArray("response"); // response - ключ, по которому находится этот массив
 
-                JSONObject human = jsonArray.getJSONObject(0);
-                resultName = human.getString("first_name") + "\n" + human.getString("last_name");
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
+                    JSONObject human = jsonArray.getJSONObject(0);
+                    resultName = human.getString("first_name") + "\n" + human.getString("last_name");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                result.setText(resultName);
+                showResultTextView();
             }
 
-            result.setText(resultName);
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -74,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
         searchField = findViewById(R.id.et_search_field);
         searchButton = findViewById(R.id.b_search_vk);
         result = findViewById(R.id.tv_result);
+        errorMessage = findViewById(R.id.tv_error_message);
+        progressBar = findViewById(R.id.pb_loading_indicator);
 
         View.OnClickListener listener = new View.OnClickListener() {
             @Override

@@ -3,4 +3,5 @@
     <string name="id_vk">Введите id VK</string>
     <string name="search">Search!</string>
     <string name="result_wiil_be_here">Результат будет тут</string>
+    <string name="error_layout">Произошла ошибка, попробуйте ещё раз!</string>
 </resources>

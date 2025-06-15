@@ -11,10 +11,12 @@ import java.util.Scanner;
 
 // Класс для работы с сетью
 public class NetworkUtils {
+    // Строки для создания запроса на API VK
     private static final String VK_HTTPS_RESPONSE = "https://api.vk.com";
     private static final String VK_METHOD_RESPONSE = "/method/users.get";
     private final static String PARAM_USER_ID = "user_ids";
     private final static String PARAM_VERSION = "v";
+    private final static String ACCESS_STRING = "access_token";
 
     public static URL generateURL(String _userID) {
         // Запрос
@@ -22,6 +24,9 @@ public class NetworkUtils {
                 .buildUpon()
                 .appendQueryParameter(PARAM_USER_ID, _userID)
                 .appendQueryParameter(PARAM_VERSION, "5.199")
+                .appendQueryParameter(ACCESS_STRING,
+                        "access_token_from_vk"
+                )
                 .build();
 
         URL url = null;

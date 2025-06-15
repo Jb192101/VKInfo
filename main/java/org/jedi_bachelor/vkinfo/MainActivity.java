@@ -3,6 +3,7 @@ package org.jedi_bachelor.vkinfo;
 import static org.jedi_bachelor.vkinfo.utils.NetworkUtils.generateURL;
 import static org.jedi_bachelor.vkinfo.utils.NetworkUtils.getResponseFromURL;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,7 +16,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import org.jedi_bachelor.vkinfo.utils.NetworkUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,6 +27,38 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchField;
     private Button searchButton;
     private TextView result;
+
+    class VKQueryTask extends AsyncTask<URL, Void, String> {
+        @Override
+        protected String doInBackground(URL... urls) {
+            String response = null;
+            try {
+                response = getResponseFromURL(urls[0]);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            // Распарсиваем JSON
+            String resultName;
+
+            try {
+                JSONObject jsonResponse = new JSONObject(response);
+                JSONArray jsonArray = jsonResponse.getJSONArray("response"); // response - ключ, по которому находится этот массив
+
+                JSONObject human = jsonArray.getJSONObject(0);
+                resultName = human.getString("first_name") + "\n" + human.getString("last_name");
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            result.setText(resultName);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,20 +78,8 @@ public class MainActivity extends AppCompatActivity {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Тест
-                //URL url = generateURL(searchField.getText().toString());
-                //result.setText(url.toString());
-
-                // Тест 2
                 URL url = generateURL(searchField.getText().toString());
-                String response = null;
-                try {
-                    response = getResponseFromURL(url);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-                result.setText(response);
+                new VKQueryTask().execute(url);
             }
         };
 
